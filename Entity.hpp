@@ -1,54 +1,34 @@
 #pragma once
 #include "Object.hpp"
+#include "Utility.hpp"
 
 #include <vector>
 #include <string>
+#include <utility>
 
 class Entity : public Object {
 public:
-    Entity(Point coords, char symb) : Object(coords, symb), hp(maxHp) {};
+    Entity(util::Point coords, char symb);
 
-    virtual void update(std::vector<std::string>& map) = 0;
+    virtual std::pair<Object&, Object&> update(util::GameInfo& game) = 0;
 
-    int getHp() const {
-        return hp;
-    }
+    int getHp() const;
 
-    int getMaxHp() const {
-        return maxHp;
-    }
-    void setMaxHp(int hp) {
-        this->maxHp = hp;
-    }
+    int getMaxHp() const;
 
-    int getDmg() const {
-        return damage;
-    }
-    void setDmg(int dmg) {
-        this->damage = dmg;
-    }
+    void setMaxHp(int hp);
 
-    Point getPos() const {
-        return pos;
-    }
-    void setPos(Point pos) {
-        this->pos = pos;
-    }
+    int getDmg() const;
 
-    void getHit(int dmg) {
-        hp -= dmg;
-    }
+    void setDmg(int dmg);
 
-    bool operator<(const Entity& rhs) {
-        return this->pos < rhs.pos;
-    }
+    util::Point getPos() const;
+
+    void setPos(util::Point pos);
+
+    void getHit(int dmg);
 
 protected:
-
-    void attack(Entity& target) {
-        target.getHit(damage);
-    }
-
     int maxHp = 10;
     int hp;
     

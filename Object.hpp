@@ -1,21 +1,21 @@
 #pragma once
-#include "Utility.hpp"
 
-using namespace util;
+#include "Utility.hpp"
 
 class Object {
 public:
-    Object() : pos(), symbol(0) {};
-    Object(Point position, char ch) : pos(position), symbol(ch) {};
+    Object();
+    Object(util::Point position, char ch);
 
-    Point getPos() {
-        return pos;
-    }
-    char getSym() {
-        return symbol;
-    }
+    util::Point getPos() const;
+    char getSym() const;
+    bool isEnabled() const;
+
+    void draw(util::GameInfo& game) const;
+
+    friend bool operator<(const Object& lhs, const Object& rhs);
 protected:
-    Point pos;
+    util::Point pos;
     char symbol;
-    bool isOnScreen = true;
+    bool enabled = true;
 };

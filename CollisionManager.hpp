@@ -11,20 +11,11 @@
 
 class CollisionManager {
 public:
-    void addCollision(std::pair<Object&, Object&> col) {
-        collisionQueue.push(col);
-    }
+    void addCollision(std::pair<Object&, Object&> col);
 
-    void process(GameInfo& game) {
-        while (!collisionQueue.empty()) {
-            tryToCollide(collisionQueue.front().first, collisionQueue.front().second);
-            collisionQueue.pop();
-        }
-    }
+    void process(util::GameInfo& game);
 
-    void tryToCollide(Object& active, Object& passive) {
-
-    }
+    void tryToCollide(Object& active, Object& passive);
 
 private:
     std::queue<std::pair<Object&, Object&>> collisionQueue;

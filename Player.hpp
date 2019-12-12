@@ -2,6 +2,8 @@
 
 #include "Entity.hpp"
 #include "Utility.hpp"
+#include "Enemy.hpp"
+#include "Projectile.hpp"
 
 #include <curses.h>
 #include <Windows.h>
@@ -11,37 +13,19 @@
 
 class Player : public Entity {
 public:
-    Player() : Entity(Point(0, 0), 'P') {}
+    Player();
 
-    explicit Player(Point pos) : Entity(pos, 'P') { }
+    explicit Player(util::Point pos);
 
-    void update(std::vector<std::string>& map) override {
-        for (auto it = moves.begin(); it != moves.end(); it++) {
-            if (GetKeyState(it->first) & 0x8000) {
-                auto newPos = pos + it->second;
-                if (!checkPoint(map, newPos))
-                    continue;
-                if (map[newPos.y][newPos.x] != '#') {
-                    if (map[newPos.y][newPos.x] == '.') {
-                        pos = newPos;
-                    }
-                }
-            }
-        }
-
-        map[pos.y][pos.x] = symbol;
-    }
-
-
+    std::pair<Object&, Object&> update(util::GameInfo& game) override;
 
 private:
-    /*void collide(Enemy& col) {
-        attack(col);
-    }*/
+    void shoot(util::GameInfo& game);
 
-    const std::map<char, Point> moves = { { 'A', Point(-1, 0) },
-                                    { 'W', Point(0, -1) },
-                                    { 'D', Point(1, 0) },
-                                    { 'S', Point(0, 1) } };
+    const std::vector<std::tuple<char, util::Point, char, util::Point>> moves = { { 'A', util::Point(-1, 0), '<', util::Point::Left() },
+                                                                { 'W', util::Point(0, -1), '^', util::Point::Up() },
+                                                                { 'D', util::Point(1, 0), '>', util::Point::Right() },
+                                                                { 'S', util::Point(0, 1), 'v', util::Point::Down() } };
 
+    int lastDir = 0;
 };
