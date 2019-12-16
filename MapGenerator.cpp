@@ -12,10 +12,6 @@ void MapGenerator::generateMap(std::vector<std::string> &map) {
     generateMaze(map, 0.75);
 }
 
-void MapGenerator::randomSpawn(util::GameInfo& game) {
-
-}
-
 int MapGenerator::getSeed() {
     return seed;
 }
@@ -45,6 +41,8 @@ void MapGenerator::generateMaze(std::vector<std::string> &map, double prob) {
     const util::Point d[2] = { util::Point(-2, 0), util::Point(0, -2) };
 
     std::map<util::Point, std::vector<util::Point>> adjList;
+
+    map[1][1] = '.';
 
     for (size_t i = 1; i < map.size(); i += 2) {
         for (size_t j = 1; j < map[i].size(); j += 2) {

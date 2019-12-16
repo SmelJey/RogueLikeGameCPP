@@ -3,7 +3,8 @@
 #include "Utility.hpp"
 #include "Entity.hpp"
 #include "Player.hpp"
-#include "Zombie.hpp"
+#include "MeleeEnemy.hpp"
+#include "RangeEnemy.hpp"
 #include "CollisionManager.hpp"
 #include "GameManager.hpp"
 
@@ -14,16 +15,67 @@
 #include <memory>
 #include <string>
 #include <fstream>
-#include <chrono>
+#include <thread>
 #include <Windows.h>
+
+#define player game.entities[0].get()
 
 using json = nlohmann::json;
 
-GameManager::GameManager() {};
+void destrWin(WINDOW* win) {
+    if (win != nullptr) {
+        wclear(win);
+        wrefresh(win);
+        delwin(win);
+    }
+        
+}
+
+GameManager::GameManager() : mapWindow(nullptr, destrWin), infoWindow(nullptr, destrWin) {};
+
+template<typename T>
+struct EntitySpec {
+    EntitySpec(T inst, double spawnRate) : instance(inst), spawnRate(spawnRate) {}
+
+    void instantiate(util::GameInfo& game, util::Point pos) {
+        game.entities.push_back(std::unique_ptr<Entity>(new T(game.getNextId(), pos, instance)));
+    }
+
+    T instance;
+    double spawnRate;
+};
+
+std::vector<EntitySpec<MeleeEnemy>> meleeSpecs;
+std::vector<EntitySpec<RangeEnemy>> rangeSpecs;
+
+void GameManager::randomSpawn() {
+    for (auto& spec : meleeSpecs) {
+        if (game.entities.size() > maxEntitiesCount)
+            return;
+        double p = (rand() % 100) / 100.0;
+        if (p < spec.spawnRate) {
+            util::Point checkPoint(rand() % mapWidth, rand() % mapHeight);
+            if (util::checkPoint(game.map, checkPoint) && game[checkPoint] == '.' && util::distance(checkPoint, player->getPos()) > playerSight + 5) {
+                spec.instantiate(game, checkPoint);
+            }
+        }
+    }
+
+    for (auto& spec : rangeSpecs) {
+        if (game.entities.size() > maxEntitiesCount)
+            return;
+        double p = (rand() % 100) / 100.0;
+        if (p < spec.spawnRate) {
+            util::Point checkPoint(rand() % mapWidth, rand() % mapHeight);
+            if (util::checkPoint(game.map, checkPoint) && game[checkPoint] == '.' && util::distance(checkPoint, player->getPos()) > playerSight + 5) {
+                spec.instantiate(game, checkPoint);
+            }
+        }
+    }
+}
 
 void GameManager::run() {
     clock_t timeStart = clock();
-    init();
     HWND console = GetConsoleWindow();
     RECT ConsoleRect;
     GetWindowRect(console, &ConsoleRect);
@@ -33,35 +85,118 @@ void GameManager::run() {
     noecho();
     curs_set(FALSE);
 
-    Player player = Player(util::Point(mapWidth / 2, mapHeight / 2));
-    player.setMaxHp(playerHp);
-    player.setDmg(playerDmg);
-    game.entities.push_back(std::unique_ptr<Entity>(new Zombie(util::Point(0, 0), dynamic_cast<Entity&>(player))));
+    showMenu();
 
-    mapWindow = std::unique_ptr<WINDOW>(newwin(mapHeight + 2, mapWidth + 2, 0, 0));
+    init();
 
     while (true) {
-        if ((double)(clock() - timeStart) / CLOCKS_PER_SEC < 0.1)
-            continue;
-        timeStart = clock();
-        
+        for (int i = 0; i < 10; i++) {
+            curLevel++;
+            if (!runLevel()) {
+                break;
+            }
+        }
+        gameOver();
+    }
+    
+}
+
+void GameManager::showMenu() {
+    auto menuWindow = win_ptr(newwin(40, 120, 0, 0), destrWin);
+    while (true) {
+        wclear(menuWindow.get());
+        if (GetKeyState(VK_ESCAPE) & 0x8000) {
+            exit(0);
+        }
+        if (GetKeyState(VK_SPACE) & 0x8000) {
+            break;
+        }
+
+        mvwprintw(menuWindow.get(), 15, 47, "auto game_name = \"test game\"");
+        mvwprintw(menuWindow.get(), 20, 50, "Press SPACE to start");
+        mvwprintw(menuWindow.get(), 23, 51, "Press ESC to exit");
+        wrefresh(menuWindow.get());
+    }
+}
+
+void GameManager::gameOver() {
+    mapWindow.reset();
+    infoWindow.reset();
+
+    auto menuWindow = win_ptr(newwin(40, 120, 0, 0), destrWin);
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(200ms);
+    while (true) {
+        wclear(menuWindow.get());
+
+        mvwprintw(menuWindow.get(), 15, 56, "You died");
+        mvwprintw(menuWindow.get(), 20, 50, "Press SPACE to restart");
+        mvwprintw(menuWindow.get(), 23, 51, "Press ESC to exit");
+        wrefresh(menuWindow.get());
+
+        if (GetKeyState(VK_ESCAPE) & 0x8000) {
+            exit(0);
+        }
+        if (GetKeyState(VK_SPACE) & 0x8000) {
+            break;
+        }
+    }
+}
+
+bool GameManager::runLevel() {
+    levelInit();
+
+    mapWindow = win_ptr(newwin(mapHeight + 2, mapWidth + 2, 0, 0), destrWin);
+    infoWindow = win_ptr(newwin(mapHeight + 2, 40, 0, mapWidth + 2), destrWin);
+
+    while (true) {
+        randomSpawn();
+
+        drawStats(infoWindow);
+        box(infoWindow.get(), 0, 0);
+
+
+        if (GetKeyState(VK_ESCAPE) & 0x8000 || player->getHp() <= 0) {
+            return false;
+        }
+
         game.map = defaultMap;
-        player.draw(game);
         for (auto& entity : game.entities) {
-            entity->draw(game);
+            if (entity->isEnabled())
+                entity->draw(game);
         }
 
-
-        for (auto& entity : game.entities) {
-            colManager.addCollision(entity->update(this->game));
+        for (int i = 0; i < game.projectiles.size(); i++) {
+            if (game.projectiles[i]->isEnabled()) {
+                colManager.addCollision(game.projectiles[i]->update(this->game));
+            }
         }
-        colManager.addCollision(player.update(game));
+        colManager.process(game);
+        for (int i = 0; i < game.projectiles.size(); i++) {
+            if (game.projectiles[i]->isEnabled())
+                break;
+            game.projectiles.pop_front();
+            i--;
+        }
+
+        for (int i = 1; i < game.entities.size(); i++) {
+            if (game.entities[i]->isEnabled()) {
+                colManager.addCollision(game.entities[i]->update(this->game));
+            }
+
+        }
+        colManager.addCollision(player->update(game));
         colManager.process(game);
 
         drawMap(mapWindow);
         box(mapWindow.get(), 0, 0);
         wrefresh(mapWindow.get());
         wclear(mapWindow.get());
+
+        wrefresh(infoWindow.get());
+        wclear(infoWindow.get());
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(120ms);
     }
 }
 
@@ -73,14 +208,52 @@ inline bool GameManager::isFileExist(const std::string& name) {
 void GameManager::rewriteSettings() {
     json settings;
 
-    settings["mapWidth"] = mapWidth;
-    settings["mapHeight"] = mapHeight;
-    settings["playerHp"] = playerHp;
-    settings["playerDmg"] = playerDmg;
+    settings["map"]["width"] = mapWidth;
+    settings["map"]["height"] = mapHeight;
+    settings["player"]["hp"] = playerHp;
+    settings["player"]["dmg"] = playerDmg;
+    settings["player"]["shotDmg"] = playerShotDmg;
+
+    settings["meleeEnemies"]["Z"]["maxHp"] = 10;
+    settings["meleeEnemies"]["Z"]["moveCd"] = 4;
+    settings["meleeEnemies"]["Z"]["dmg"] = 1;
+    settings["meleeEnemies"]["Z"]["sightRange"] = 15;
+    settings["meleeEnemies"]["Z"]["spawnRate"] = 0.2;
+
+    settings["rangeEnemies"]["S"]["maxHp"] = 10;
+    settings["rangeEnemies"]["S"]["moveCd"] = 3;
+    settings["rangeEnemies"]["S"]["dmg"] = 1;
+    settings["rangeEnemies"]["S"]["sightRange"] = 15;
+    settings["rangeEnemies"]["S"]["shotCd"] = 15;
+    settings["rangeEnemies"]["S"]["shotDmg"] = 15;
+    settings["rangeEnemies"]["S"]["spawnRate"] = 0.1;
 
     std::ofstream settingsOut("settings.json");
-    settingsOut << settings.dump(-1);
+    settingsOut << settings.dump(4);
     settingsOut.close();
+}
+
+void GameManager::levelInit() {
+    if (game.entities.size() > 0) {
+        game.entities.resize(1);
+        game.entities[0]->setPos(util::Point(1, 1));
+        game.entities[0]->setHp(playerHp);
+        game.entities[0]->setEnabled();
+    } else {
+        game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(1,1))));
+    }
+
+    game.map.clear();
+    game.projectiles.clear();
+    defaultMap.clear();
+
+    defaultMap.resize(mapHeight);
+    for (size_t i = 0; i < mapHeight; i++) {
+        for (size_t j = 0; j < mapWidth; j++) {
+            defaultMap[i].push_back('.');
+        }
+    }
+    mapGenerator.generateMap(defaultMap);
 }
 
 void GameManager::init() {
@@ -92,21 +265,36 @@ void GameManager::init() {
     settingsIn >> settings;
     settingsIn.close();
 
-    mapWidth = settings["mapWidth"];
-    mapHeight = settings["mapHeight"];
+    mapWidth = settings["map"]["width"];
+    mapHeight = settings["map"]["height"];
+    playerHp = settings["player"]["hp"];
+    playerDmg = settings["player"]["dmg"];
+    playerShotDmg = settings["player"]["shotDmg"];
 
-    defaultMap.resize(mapHeight);
+    game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(mapWidth / 2, mapHeight / 2))));
 
-    for (size_t i = 0; i < mapHeight; i++) {
-        for (size_t j = 0; j < mapWidth; j++) {
-            defaultMap[i].push_back('.');
-        }
-        //defaultMap[i].push_back('\n');
+    for (auto& [chr, params] : settings["meleeEnemies"].items()) {
+        MeleeEnemy me(chr[0], params["maxHp"].get<int>(),
+            params["moveCd"].get<int>(), params["dmg"].get<int>(),
+            params["sightRange"].get<int>(), *player);
+        meleeSpecs.push_back(EntitySpec<MeleeEnemy>(me, params["spawnRate"].get<double>()));
+    }
+
+    for (auto& [chr, params] : settings["rangeEnemies"].items()) {
+        RangeEnemy me(chr[0], params["maxHp"].get<int>(),
+            params["moveCd"].get<int>(), params["dmg"].get<int>(),
+            params["sightRange"].get<int>(), *player,
+            params["shotCd"].get<int>(), params["shotDmg"].get<int>());
+        rangeSpecs.push_back(EntitySpec<RangeEnemy>(me, params["spawnRate"].get<double>()));
     }
 }
 
-void GameManager::drawMap(std::unique_ptr<WINDOW>& win) {
+void GameManager::drawMap(win_ptr& win) {
     for (size_t i = 0; i < game.map.size(); i++) {
         mvwprintw(win.get(), 1 + i, 1, game.map[i].c_str());
     }
+}
+
+void GameManager::drawStats(win_ptr& win) {
+    mvwprintw(win.get(), 1, 1, "Player HP: %d", player->getHp());
 }

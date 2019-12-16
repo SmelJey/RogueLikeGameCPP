@@ -12,14 +12,14 @@
 
 class Enemy : public Entity {
 public:
-    std::pair<Object&, Object&> update(util::GameInfo& game) override;
+    Enemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int id = -1, util::Point pos = util::Point(-1, -1));
 
 protected:
-    Enemy(util::Point pos, char sym, const Entity& player);
-
     const Entity& playerRef;
 
     int sightRange = 15;
+    int moveCd = 2;
+    int moveTimer = 0;
 
     util::Point bfs(const std::vector<std::string>& map, const util::Point& target, int distance) const;
 };

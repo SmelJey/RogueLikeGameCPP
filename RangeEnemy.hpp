@@ -4,7 +4,9 @@
 
 class RangeEnemy : public Enemy {
 public:
-    RangeEnemy(int id, util::Point pos, const Entity& player, char sym);
+    RangeEnemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int shootingCd, int shotDmg, int id = -1, util::Point pos = util::Point(-1, -1));
+
+    RangeEnemy(int id, util::Point pos, const RangeEnemy& src);
 
     std::pair<Object&, Object&> update(util::GameInfo& game) override;
 
@@ -16,7 +18,7 @@ protected:
     int shootingCd = 8;
     int shootingTimer = shootingCd;
 
-    int rangedDmg = 2;
+    int shotDamage = 2;
 
     util::Point directions[4] = { util::Point::Left(), util::Point::Up(), util::Point::Right(), util::Point::Down() };
 };

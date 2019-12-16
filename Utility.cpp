@@ -4,13 +4,11 @@
 #include <memory>
 #include <set>
 #include "Utility.hpp"
+#include "Enemy.hpp"
 
 class Entity;
 class Player;
-class Enemy;
 class Projectile;
-
-bool operator<(const Entity& lhs, const Entity& rhs);
 
 namespace util {
     Point::Point() : x(0), y(0) {}
@@ -42,6 +40,15 @@ namespace util {
     Point& Point::operator*=(int lhs) {
         x *= lhs;
         y *= lhs;
+        return *this;
+    }
+
+    Point Point::operator/(int lhs) const {
+        return Point(this->x / lhs, this->y / lhs);
+    }
+    Point& Point::operator/=(int lhs) {
+        x /= lhs;
+        y /= lhs;
         return *this;
     }
 
@@ -78,8 +85,17 @@ namespace util {
         return rhs.x < lhs.x;
     }
 
+    int distance(const Point& lhs, const Point& rhs) {
+        return std::abs(lhs.x - rhs.x) + std::abs(lhs.y - rhs.y);
+    }
+
     bool checkPoint(const std::vector<std::string>& map, const Point& p) {
         return p.x >= 0 && p.y >= 0 && p.y < map.size() && p.x < map[0].size();
+    }
+
+    int GameInfo::getNextId() {
+        this->curId++;
+        return this->curId - 1;
     }
 
     char& GameInfo::operator[](const Point& pos) {

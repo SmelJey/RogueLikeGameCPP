@@ -80,6 +80,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,24 +137,28 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="MapGenerator.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="RangeEnemy.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Test.cpp" />
     <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="Zombie.cpp" />
+    <ClCompile Include="MeleeEnemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CollisionManager.hpp" />
     <ClInclude Include="Enemy.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="GameManager.hpp" />
+    <ClInclude Include="Item.hpp" />
+    <ClInclude Include="MapGenerator.hpp" />
     <ClInclude Include="Object.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="Projectile.hpp" />
+    <ClInclude Include="RangeEnemy.hpp" />
     <ClInclude Include="Utility.hpp" />
-    <ClInclude Include="Zombie.hpp" />
+    <ClInclude Include="MeleeEnemy.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

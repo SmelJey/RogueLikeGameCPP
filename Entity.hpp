@@ -8,15 +8,15 @@
 
 class Entity : public Object {
 public:
-    Entity(util::Point coords, char symb);
-
-    virtual std::pair<Object&, Object&> update(util::GameInfo& game) = 0;
+    Entity(char sym, int maxHp, int dmg, int id = -1, util::Point pos = util::Point(-1, -1));
 
     int getHp() const;
 
     int getMaxHp() const;
 
     void setMaxHp(int hp);
+
+    void setHp(int hp);
 
     int getDmg() const;
 
@@ -26,9 +26,12 @@ public:
 
     void setPos(util::Point pos);
 
-    void getHit(int dmg);
+    void getHit(int dmg, util::GameInfo& game);
 
 protected:
+
+    std::pair<Object&, Object&> findCollision(util::Point pos, util::GameInfo& game);
+
     int maxHp = 10;
     int hp;
     

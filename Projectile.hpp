@@ -5,7 +5,7 @@
 
 class Projectile : public Entity {
 public:
-    Projectile(util::Point pos, util::Point direction, char sym, bool isPlayer);
+    Projectile(int id, util::Point pos, util::Point direction, char sym, int dmg, bool isPlayer);
 
     std::pair<Object&, Object&> update(util::GameInfo& game);
 

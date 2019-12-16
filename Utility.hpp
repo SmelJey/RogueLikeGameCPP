@@ -4,13 +4,13 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <unordered_set>
+#include <queue>
 
 class Entity;
 class Player;
 class Enemy;
 class Projectile;
-
-bool operator<(const Entity& lhs, const Entity& rhs);
 
 namespace util {
 
@@ -28,6 +28,9 @@ namespace util {
 
         Point operator*(int lhs) const;
         Point& operator*=(int lhs);
+
+        Point operator/(int lhs) const;
+        Point& operator/=(int lhs);
 
         bool operator==(const Point& lhs) const;
 
@@ -49,13 +52,23 @@ namespace util {
         static Point DLeft();
     };
 
+    int distance(const Point& lhs, const Point& rhs);
+
     bool operator<(const Point& rhs, const Point& lhs);
     bool checkPoint(const std::vector<std::string>& map, const Point& p);
 
+
     struct GameInfo {
-        std::vector<std::unique_ptr<Entity>> entities;
+        int getNextId();
+        char& operator[](const Point& pos);
+
         std::vector<std::string> map;
 
-        char& operator[](const Point& pos);
+        std::vector<std::unique_ptr<Entity>> entities;
+        std::deque<std::unique_ptr<Entity>> projectiles;
+
+        int curId = 1;
+
+        
     };
 }

@@ -8,8 +8,6 @@ public:
 
     void generateMap(std::vector<std::string> &map);
 
-    void randomSpawn(util::GameInfo& game);
-
     int getSeed();
 
 private:

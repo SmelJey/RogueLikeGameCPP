@@ -3,7 +3,13 @@
 #include "RangeEnemy.hpp"
 #include "Projectile.hpp"
 
-RangeEnemy::RangeEnemy(int id, util::Point pos, const Entity& player, char sym) : Enemy(id, pos, sym, player) {}
+RangeEnemy::RangeEnemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int shotCd, int shotDmg, int id, util::Point pos)
+    : Enemy(sym, maxHp, moveCd, dmg, sightRange, player, id, pos), shotDamage(shotDmg), shootingCd(shotCd) {}
+
+RangeEnemy::RangeEnemy(int id, util::Point pos, const RangeEnemy& src)
+    : RangeEnemy(src.symbol, src.maxHp, src.moveCd, src.damage, src.sightRange, src.playerRef, src.shootingCd, src.shotDamage, id, pos) {
+    enabled = true;
+}
 
 std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
@@ -21,9 +27,8 @@ std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
                     game[pos] = '.';
                     this->pos = nextPos;
                 } else {
-                    auto it = std::find_if(game.entities.begin(), game.entities.end(), [nextPos](std::unique_ptr<Entity>& el) { return el->getPos() == nextPos; });
                     game[pos] = symbol;
-                    return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *it->get());
+                    return findCollision(nextPos, game);
                 }
             }
         }
@@ -40,6 +45,6 @@ std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
 
 void RangeEnemy::shoot(util::GameInfo& game) {
     if (util::checkPoint(game.map, this->pos + directions[lastDirection]))
-        game.entities.push_back(std::unique_ptr<Entity>(new Projectile(game.getNextId(), this->pos + directions[lastDirection],\
-            directions[lastDirection], '+', rangedDmg, false)));
+        game.projectiles.push_back(std::unique_ptr<Entity>(new Projectile(game.getNextId(), this->pos + directions[lastDirection],\
+            directions[lastDirection], '+', shotDamage, false)));
 }

@@ -11,9 +11,9 @@
 
 #include <map>
 
-Player::Player() : Entity(util::Point(0, 0), '<') {}
+Player::Player() : Entity('<', 10, 2, 0, util::Point(0, 0)), shots(0), shotDamage(2) {}
 
-Player::Player(util::Point pos) : Entity(pos, '<') { }
+Player::Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id) : Entity('<', maxHp, dmg, id, pos), shots(0), shotDamage(shotDmg) {}
 
 std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
@@ -31,21 +31,21 @@ std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
                     game[pos] = '.';
                     pos = newPos;
                 } else {
-                    auto it = std::find_if(game.entities.begin(), game.entities.begin(), [newPos](std::unique_ptr<Entity>& el) { return el->getPos() == newPos; });
                     game.map[pos.y][pos.x] = symbol;
-                    return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *it->get());
+                    return findCollision(newPos, game);
                 }
             }
         }
     }
     if (GetKeyState('E') & 0x8000) {
         auto checkPoint = this->pos + std::get<3>(moves[lastDir]);
-        if (game[checkPoint] != '.') {
-            auto it = std::find_if(game.entities.begin(), game.entities.begin(), [checkPoint](std::unique_ptr<Entity>& el) { return el->getPos() == checkPoint; });
-            game.map[pos.y][pos.x] = symbol;
-            return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *it->get());
+        if (util::checkPoint(game.map, checkPoint) && game[checkPoint] != '#') {
+            if (game[checkPoint] != '.') {
+                game.map[pos.y][pos.x] = symbol;
+                return findCollision(checkPoint, game);
+            }
+            shoot(game);
         }
-        shoot(game);
     }
 
 
@@ -54,5 +54,23 @@ std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
 }
 
 void Player::shoot(util::GameInfo& game) {
-    game.entities.push_back(std::unique_ptr<Entity>(new Projectile(this->pos, std::get<3>(moves[lastDir]), 'o', true)));
+    if (util::checkPoint(game.map, this->pos + std::get<3>(moves[lastDir])))
+        game.projectiles.push_back(std::unique_ptr<Entity>(new Projectile(game.getNextId(), this->pos + std::get<3>(moves[lastDir]),
+            std::get<3>(moves[lastDir]), 'o', shotDamage, true)));
+}
+
+void Player::swap(Player& src) {
+    std::swap(this->damage, src.damage);
+    std::swap(this->enabled, src.enabled);
+    std::swap(this->hp, src.hp);
+    std::swap(this->lastDir, src.lastDir);
+    std::swap(this->maxHp, src.maxHp);
+    std::swap(this->pos, src.pos);
+    std::swap(this->symbol, src.symbol);
+}
+
+Player& Player::operator=(const Player& src) {
+    Player tmp(src);
+    swap(tmp);
+    return *this;
 }

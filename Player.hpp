@@ -15,9 +15,13 @@ class Player : public Entity {
 public:
     Player();
 
-    explicit Player(util::Point pos);
+    Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id = 0);
 
     std::pair<Object&, Object&> update(util::GameInfo& game) override;
+
+    void swap(Player& src);
+
+    Player& operator=(const Player& src);
 
 private:
     void shoot(util::GameInfo& game);
@@ -28,4 +32,7 @@ private:
                                                                 { 'S', util::Point(0, 1), 'v', util::Point::Down() } };
 
     int lastDir = 0;
+    int shotDamage = 2;
+    int shots = 0;
+    int shootingTimer = 0;
 };

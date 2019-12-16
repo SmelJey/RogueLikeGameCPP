@@ -5,7 +5,14 @@
 
 #include "MeleeEnemy.hpp"
 
-MeleeEnemy::MeleeEnemy(int id, util::Point pos, const Entity& player, char sym) : Enemy(id, pos, sym, player) {}
+MeleeEnemy::MeleeEnemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int id, util::Point pos)
+    : Enemy(sym, maxHp, moveCd, dmg, sightRange, player, id, pos) {}
+
+MeleeEnemy::MeleeEnemy(int id, util::Point pos, const MeleeEnemy& src)
+    : MeleeEnemy(src.symbol, src.maxHp, src.moveCd, src.damage, src.sightRange, src.playerRef, id, pos) {
+    enabled = true;
+}
+
 std::pair<Object&, Object&> MeleeEnemy::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
@@ -28,9 +35,8 @@ std::pair<Object&, Object&> MeleeEnemy::update(util::GameInfo& game) {
                 game[pos] = '.';
                 this->pos = nextPos;
             } else {
-                auto it = std::find_if(game.entities.begin(), game.entities.end(), [nextPos](std::unique_ptr<Entity>& el) { return el->getPos() == nextPos; });
                 game[pos] = symbol;
-                return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *it->get());
+                return findCollision(nextPos, game);
             }
         }
     }
