@@ -20,6 +20,8 @@ public:
 
     int getDmg() const;
 
+    virtual void interact(Projectile&, util::GameInfo&) override;
+
     void setDmg(int dmg);
 
     util::Point getPos() const;
@@ -30,7 +32,7 @@ public:
 
 protected:
 
-    std::pair<Object&, Object&> findCollision(util::Point pos, util::GameInfo& game);
+    Object& findCollision(util::Point pos, util::GameInfo& game);
 
     int maxHp = 10;
     int hp;

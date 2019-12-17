@@ -5,7 +5,6 @@
 #include "Player.hpp"
 #include "MeleeEnemy.hpp"
 #include "RangeEnemy.hpp"
-#include "CollisionManager.hpp"
 #include "GameManager.hpp"
 
 #include <curses.h>
@@ -168,10 +167,10 @@ bool GameManager::runLevel() {
 
         for (int i = 0; i < game.projectiles.size(); i++) {
             if (game.projectiles[i]->isEnabled()) {
-                colManager.addCollision(game.projectiles[i]->update(this->game));
+                game.projectiles[i]->update(this->game);
             }
         }
-        colManager.process(game);
+
         for (int i = 0; i < game.projectiles.size(); i++) {
             if (game.projectiles[i]->isEnabled())
                 break;
@@ -179,14 +178,12 @@ bool GameManager::runLevel() {
             i--;
         }
 
-        for (int i = 1; i < game.entities.size(); i++) {
+        for (int i = game.entities.size() - 1; i >= 0; i--) {
             if (game.entities[i]->isEnabled()) {
-                colManager.addCollision(game.entities[i]->update(this->game));
+                game.entities[i]->update(this->game);
             }
 
         }
-        colManager.addCollision(player->update(game));
-        colManager.process(game);
 
         drawMap(mapWindow);
         box(mapWindow.get(), 0, 0);
@@ -253,7 +250,7 @@ void GameManager::levelInit() {
             defaultMap[i].push_back('.');
         }
     }
-    mapGenerator.generateMap(defaultMap);
+    mapGenerator.generateMap(defaultMap, game);
 }
 
 void GameManager::init() {

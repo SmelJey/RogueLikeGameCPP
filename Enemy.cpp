@@ -3,6 +3,7 @@
 #include "Entity.hpp"
 #include "Utility.hpp"
 #include "Enemy.hpp"
+#include "Player.hpp"
 
 #include <queue>
 #include <vector>
@@ -12,6 +13,14 @@
 
 Enemy::Enemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int id, util::Point pos)
     : Entity(sym, maxHp, dmg, id, pos), moveCd(moveCd), sightRange(sightRange), playerRef(player) {}
+
+void Enemy::interact(Player& pl, util::GameInfo& game) {
+    this->getHit(pl.getDmg(), game);
+}
+
+Enemy& Enemy::getRef() {
+    return *this;
+}
 
 util::Point Enemy::bfs(const std::vector<std::string>& map, const util::Point& target, int distance) const {
     const util::Point d[4] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };

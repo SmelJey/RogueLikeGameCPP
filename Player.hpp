@@ -17,9 +17,13 @@ public:
 
     Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id = 0);
 
-    std::pair<Object&, Object&> update(util::GameInfo& game) override;
+    void update(util::GameInfo& game) override;
+
+    virtual void interact(Enemy&, util::GameInfo&) override;
 
     void swap(Player& src);
+
+    Player& getRef() override;
 
     Player& operator=(const Player& src);
 

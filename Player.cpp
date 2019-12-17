@@ -5,6 +5,7 @@
 #include "Projectile.hpp"
 #include "Player.hpp"
 #include "Object.hpp"
+#include "Item.hpp"
 
 #include <curses.h>
 #include <Windows.h>
@@ -15,10 +16,14 @@ Player::Player() : Entity('<', 10, 2, 0, util::Point(0, 0)), shots(0), shotDamag
 
 Player::Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id) : Entity('<', maxHp, dmg, id, pos), shots(0), shotDamage(shotDmg) {}
 
-std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
+Player& Player::getRef() {
+    return *this;
+}
+
+void Player::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
-        return collision;
+        return;
     for (int i = 0; i < 4; i++) {
         if (GetKeyState(std::get<0>(moves[i])) & 0x8000) {
             auto newPos = this->pos + std::get<1>(moves[i]);
@@ -32,7 +37,9 @@ std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
                     pos = newPos;
                 } else {
                     game.map[pos.y][pos.x] = symbol;
-                    return findCollision(newPos, game);
+                    auto& tmp = findCollision(newPos, game);
+                    tmp.interact(*this, game);
+                    return;
                 }
             }
         }
@@ -42,7 +49,9 @@ std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
         if (util::checkPoint(game.map, checkPoint) && game[checkPoint] != '#') {
             if (game[checkPoint] != '.') {
                 game.map[pos.y][pos.x] = symbol;
-                return findCollision(checkPoint, game);
+                auto& tmp = findCollision(checkPoint, game);
+                tmp.interact(*this, game);
+                return;
             }
             shoot(game);
         }
@@ -50,7 +59,11 @@ std::pair<Object&, Object&> Player::update(util::GameInfo& game) {
 
 
     game.map[pos.y][pos.x] = symbol;
-    return collision;
+    return;
+}
+
+void Player::interact(Enemy& enemy, util::GameInfo& game) {
+    this->getHit(enemy.getDmg(), game);
 }
 
 void Player::shoot(util::GameInfo& game) {

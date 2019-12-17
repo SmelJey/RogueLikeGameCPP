@@ -13,10 +13,10 @@ MeleeEnemy::MeleeEnemy(int id, util::Point pos, const MeleeEnemy& src)
     enabled = true;
 }
 
-std::pair<Object&, Object&> MeleeEnemy::update(util::GameInfo& game) {
+void MeleeEnemy::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
-        return collision;
+        return;
     moveTimer--;
     if (moveTimer <= 0) {
         moveTimer = moveCd;
@@ -36,11 +36,13 @@ std::pair<Object&, Object&> MeleeEnemy::update(util::GameInfo& game) {
                 this->pos = nextPos;
             } else {
                 game[pos] = symbol;
-                return findCollision(nextPos, game);
+                auto& tmp = findCollision(nextPos, game);
+                tmp.interact(*this, game);
+                return;
             }
         }
     }
 
     game[pos] = symbol;
-    return collision;
+    return;
 }

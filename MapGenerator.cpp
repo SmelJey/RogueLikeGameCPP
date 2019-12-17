@@ -4,12 +4,26 @@
 #include <set>
 #include <map>
 
+#include "Portal.hpp"
+#include "Item.hpp"
+
 MapGenerator::MapGenerator(int seed) : seed(seed) {
     srand(seed);
 }
 
-void MapGenerator::generateMap(std::vector<std::string> &map) {
+void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& game) {
     generateMaze(map, 0.75);
+
+    for (int i = map.size() - 1; i >= 0; i--) {
+        for (int j = map[i].size() - 1; j >= 0; j--) {
+            if (map[i][j] == '.') {
+                map[i][j] = 'Q';
+                game.items.push_back(std::unique_ptr<Item>(new Portal('Q', game.getNextId(), util::Point(j, i))));
+                i = 0;
+                break;
+            }
+        }
+    }
 }
 
 int MapGenerator::getSeed() {

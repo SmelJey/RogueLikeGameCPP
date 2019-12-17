@@ -2,7 +2,6 @@
 
 #include "Utility.hpp"
 
-#include "CollisionManager.hpp"
 #include "MapGenerator.hpp"
 
 #include <curses.h>
@@ -66,6 +65,5 @@ private:
     util::GameInfo game;
 
     std::vector<std::string> defaultMap;
-    CollisionManager colManager;
     MapGenerator mapGenerator;
 };

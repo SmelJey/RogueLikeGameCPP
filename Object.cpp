@@ -2,6 +2,7 @@
 
 #include "Utility.hpp"
 #include "Object.hpp"
+#include "Projectile.hpp"
 
 using namespace util;
 
@@ -24,6 +25,16 @@ void Object::setEnabled(bool val) {
 
 void Object::draw(GameInfo& game) const {
     game[this->pos] = symbol;
+}
+
+void Object::interact(Enemy&, util::GameInfo&) {
+}
+
+void Object::interact(Player&, util::GameInfo&) {
+}
+
+void Object::interact(Projectile& obj, util::GameInfo& game) {
+    obj.getHit(obj.getHp(), game);
 }
 
 bool operator<(const Object& lhs, const Object& rhs) {

@@ -8,7 +8,7 @@ public:
 
     RangeEnemy(int id, util::Point pos, const RangeEnemy& src);
 
-    std::pair<Object&, Object&> update(util::GameInfo& game) override;
+    void update(util::GameInfo& game) override;
 
 protected:
 

@@ -11,6 +11,7 @@ class Entity;
 class Player;
 class Enemy;
 class Projectile;
+class Item;
 
 namespace util {
 
@@ -60,15 +61,19 @@ namespace util {
 
     struct GameInfo {
         int getNextId();
+
         char& operator[](const Point& pos);
+
+        void reset();
+
+        bool isWin = false;
 
         std::vector<std::string> map;
 
         std::vector<std::unique_ptr<Entity>> entities;
         std::deque<std::unique_ptr<Entity>> projectiles;
+        std::vector<std::unique_ptr<Item>> items;
 
         int curId = 1;
-
-        
     };
 }

@@ -2,6 +2,7 @@
 #include "Object.hpp"
 #include "Utility.hpp"
 #include "Entity.hpp"
+#include "Projectile.hpp"
 
 #include <vector>
 #include <string>
@@ -28,6 +29,12 @@ void Entity::setMaxHp(int hp) {
 int Entity::getDmg() const {
     return damage;
 }
+
+void Entity::interact(Projectile& obj, util::GameInfo& game) {
+    this->getHit(obj.getDmg(), game);
+    Object::interact(obj, game);
+}
+
 void Entity::setDmg(int dmg) {
     this->damage = dmg;
 }
@@ -49,7 +56,7 @@ void Entity::getHit(int dmg, util::GameInfo& game) {
        
 }
 
-std::pair<Object&, Object&> Entity::findCollision(util::Point pos, util::GameInfo& game) {
+Object& Entity::findCollision(util::Point pos, util::GameInfo& game) {
     auto it = std::find_if(game.entities.begin(), game.entities.end(), [pos](std::unique_ptr<Entity>& el) {
         return el->getPos() == pos;
         });
@@ -60,7 +67,7 @@ std::pair<Object&, Object&> Entity::findCollision(util::Point pos, util::GameInf
         if (itp == game.projectiles.end()) {
             throw;
         }
-        return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *itp->get());
+        return *itp->get();
     }
-    return std::pair<Object&, Object&>(dynamic_cast<Object&>(*this), *it->get());
+    return *it->get();
 }

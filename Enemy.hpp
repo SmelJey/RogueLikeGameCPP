@@ -14,6 +14,10 @@ class Enemy : public Entity {
 public:
     Enemy(char sym, int maxHp, int moveCd, int dmg, int sightRange, const Entity& player, int id = -1, util::Point pos = util::Point(-1, -1));
 
+    virtual void interact(Player&, util::GameInfo&) override;
+
+    Enemy& getRef() override;
+
 protected:
     const Entity& playerRef;
 

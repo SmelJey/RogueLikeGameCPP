@@ -8,32 +8,40 @@ class Enemy;
 
 Projectile::Projectile(int id, util::Point pos, util::Point direction, char sym, int dmg, bool isPlayer) : Entity(sym, 1, dmg, id, pos), speed(direction), isPlayer(isPlayer) {}
 
-std::pair<Object&, Object&> Projectile::update(util::GameInfo& game) {
+Projectile& Projectile::getRef() {
+    return *this;
+}
+
+void Projectile::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (game[this->pos] != '.' && game[this->pos] != symbol) {
         enabled = false;
         if (game[this->pos] == '#') {
-            return collision;
+            return;
         }
-        return findCollision(this->pos, game);
+        auto& tmp = findCollision(this->pos, game);
+        tmp.interact(*this, game);
+        return;
     }
     
     game[this->pos] = '.';
     auto newPos = pos + speed;
     if (!util::checkPoint(game.map, newPos)) {
         enabled = false;
-        return collision;
+        return;
     }
     if (game[newPos] == '#') {
         enabled = false;
-        return collision;
+        return;
     }
 
     if (game[newPos] != '.') {
-        return findCollision(newPos, game);
+        auto& tmp = findCollision(newPos, game);
+        tmp.interact(*this, game);
+        return;
     }
     this->pos = newPos;
     game[this->pos] = this->symbol;
 
-    return collision;
+    return;
 }

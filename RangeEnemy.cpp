@@ -11,10 +11,10 @@ RangeEnemy::RangeEnemy(int id, util::Point pos, const RangeEnemy& src)
     enabled = true;
 }
 
-std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
+void RangeEnemy::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
-        return collision;
+        return;
     moveTimer--;
     if (moveTimer <= 0) {
         moveTimer = moveCd;
@@ -28,7 +28,9 @@ std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
                     this->pos = nextPos;
                 } else {
                     game[pos] = symbol;
-                    return findCollision(nextPos, game);
+                    auto& tmp = findCollision(nextPos, game);
+                    tmp.interact(*this, game);
+                    return;
                 }
             }
         }
@@ -40,7 +42,7 @@ std::pair<Object&, Object&> RangeEnemy::update(util::GameInfo& game) {
         shoot(game);
     }
     game[pos] = symbol;
-    return collision;
+    return;
 }
 
 void RangeEnemy::shoot(util::GameInfo& game) {
