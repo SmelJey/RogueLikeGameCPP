@@ -1,31 +1,37 @@
 {
-    "map": {
-        "height": 40,
-        "width": 80
-    },
-    "meleeEnemies": {
-        "Z": {
-            "dmg": 1,
-            "maxHp": 10,
-            "moveCd": 2,
-            "sightRange": 15,
-            "spawnRate": 0.2
-        }
-    },
-    "player": {
-        "dmg": 3,
-        "hp": 10,
-        "shotDmg": 2
-    },
-    "rangeEnemies": {
-        "S": {
-            "dmg": 1,
-            "maxHp": 10,
-            "moveCd": 2,
-            "shotCd": 15,
-            "shotDmg": 15,
-            "sightRange": 15,
-            "spawnRate": 0.1
-        }
+  "items": {
+    "h": {
+      "healRestoration": 5,
+      "spawnRate": 0.01
     }
+  },
+  "map": {
+    "height": 40,
+    "width": 80
+  },
+  "meleeEnemies": {
+    "Z": {
+      "dmg": 1,
+      "maxHp": 10,
+      "moveCd": 4,
+      "sightRange": 15,
+      "spawnRate": 0.2
+    }
+  },
+  "player": {
+    "dmg": 3,
+    "hp": 10,
+    "shotDmg": 2
+  },
+  "rangeEnemies": {
+    "S": {
+      "dmg": 1,
+      "maxHp": 10,
+      "moveCd": 3,
+      "shotCd": 15,
+      "shotDmg": 15,
+      "sightRange": 15,
+      "spawnRate": 0.1
+    }
+  }
 }

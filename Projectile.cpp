@@ -8,10 +8,6 @@ class Enemy;
 
 Projectile::Projectile(int id, util::Point pos, util::Point direction, char sym, int dmg, bool isPlayer) : Entity(sym, 1, dmg, id, pos), speed(direction), isPlayer(isPlayer) {}
 
-Projectile& Projectile::getRef() {
-    return *this;
-}
-
 void Projectile::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (game[this->pos] != '.' && game[this->pos] != symbol) {

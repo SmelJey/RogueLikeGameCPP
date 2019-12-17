@@ -23,8 +23,6 @@ public:
 
     void swap(Player& src);
 
-    Player& getRef() override;
-
     Player& operator=(const Player& src);
 
 private:

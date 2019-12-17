@@ -48,5 +48,5 @@ void RangeEnemy::update(util::GameInfo& game) {
 void RangeEnemy::shoot(util::GameInfo& game) {
     if (util::checkPoint(game.map, this->pos + directions[lastDirection]))
         game.projectiles.push_back(std::unique_ptr<Entity>(new Projectile(game.getNextId(), this->pos + directions[lastDirection],\
-            directions[lastDirection], '+', shotDamage, false)));
+            directions[lastDirection], '*', shotDamage, false)));
 }

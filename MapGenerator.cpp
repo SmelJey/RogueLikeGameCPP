@@ -5,6 +5,7 @@
 #include <map>
 
 #include "Portal.hpp"
+#include "HealPotion.hpp"
 #include "Item.hpp"
 
 MapGenerator::MapGenerator(int seed) : seed(seed) {
@@ -18,9 +19,20 @@ void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& ga
         for (int j = map[i].size() - 1; j >= 0; j--) {
             if (map[i][j] == '.') {
                 map[i][j] = 'Q';
-                game.items.push_back(std::unique_ptr<Item>(new Portal('Q', game.getNextId(), util::Point(j, i))));
+                game.items.push_back(std::unique_ptr<Object>(new Portal('Q', game.getNextId(), util::Point(j, i))));
                 i = 0;
                 break;
+            }
+        }
+    }
+
+    for (int i = 0; i < map.size(); i++) {
+        for (int j = 0; j < map[i].size(); j++) {
+            if (map[i][j] == '.') {
+                game.itemsProps["HealPotionRestoration"];
+                if (rand() % 100 / 100.0 < game.itemsProps["HealPotionSpawnRate"]) {
+                    game.items.push_back(std::unique_ptr<Object>(new HealPotion('h', game.itemsProps["HealPotionRestoration"], game.getNextId(), util::Point(j, i))));
+                }
             }
         }
     }

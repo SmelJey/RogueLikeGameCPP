@@ -136,6 +136,7 @@
     <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="GameManager.cpp" />
+    <ClCompile Include="HealPotion.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="MapGenerator.cpp" />
     <ClCompile Include="Object.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Enemy.hpp" />
     <ClInclude Include="Entity.hpp" />
     <ClInclude Include="GameManager.hpp" />
+    <ClInclude Include="HealPotion.hpp" />
     <ClInclude Include="Item.hpp" />
     <ClInclude Include="MapGenerator.hpp" />
     <ClInclude Include="Object.hpp" />

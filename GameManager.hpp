@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Utility.hpp"
+#include "MeleeEnemy.hpp"
+#include "RangeEnemy.hpp"
 
 #include "MapGenerator.hpp"
 
@@ -22,6 +24,21 @@ using win_ptr = std::unique_ptr<WINDOW, std::function<void(WINDOW*)>>;
 
 class GameManager {
 public:
+    template<typename T>
+    struct EntitySpec {
+        EntitySpec(T inst, double spawnRate) : instance(inst), spawnRate(spawnRate) {}
+
+        void instantiate(util::GameInfo& game, util::Point pos) {
+            game.entities.push_back(std::unique_ptr<Entity>(new T(game.getNextId(), pos, instance)));
+        }
+
+        T instance;
+        double spawnRate;
+    };
+
+    std::vector<EntitySpec<MeleeEnemy>> meleeSpecs;
+    std::vector<EntitySpec<RangeEnemy>> rangeSpecs;
+
     GameManager();
 
     void run();

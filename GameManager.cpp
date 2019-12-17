@@ -32,20 +32,7 @@ void destrWin(WINDOW* win) {
 
 GameManager::GameManager() : mapWindow(nullptr, destrWin), infoWindow(nullptr, destrWin) {};
 
-template<typename T>
-struct EntitySpec {
-    EntitySpec(T inst, double spawnRate) : instance(inst), spawnRate(spawnRate) {}
 
-    void instantiate(util::GameInfo& game, util::Point pos) {
-        game.entities.push_back(std::unique_ptr<Entity>(new T(game.getNextId(), pos, instance)));
-    }
-
-    T instance;
-    double spawnRate;
-};
-
-std::vector<EntitySpec<MeleeEnemy>> meleeSpecs;
-std::vector<EntitySpec<RangeEnemy>> rangeSpecs;
 
 void GameManager::randomSpawn() {
     for (auto& spec : meleeSpecs) {
@@ -165,6 +152,11 @@ bool GameManager::runLevel() {
                 entity->draw(game);
         }
 
+        for (auto& item : game.items) {
+            if (item->isEnabled())
+                item->draw(game);
+        }
+
         for (int i = 0; i < game.projectiles.size(); i++) {
             if (game.projectiles[i]->isEnabled()) {
                 game.projectiles[i]->update(this->game);
@@ -182,7 +174,11 @@ bool GameManager::runLevel() {
             if (game.entities[i]->isEnabled()) {
                 game.entities[i]->update(this->game);
             }
+        }
 
+        if (game.isWin) {
+            game.isWin = false;
+            return true;
         }
 
         drawMap(mapWindow);
@@ -225,8 +221,11 @@ void GameManager::rewriteSettings() {
     settings["rangeEnemies"]["S"]["shotDmg"] = 15;
     settings["rangeEnemies"]["S"]["spawnRate"] = 0.1;
 
+    settings["items"]["h"]["healRestoration"] = 5;
+    settings["items"]["h"]["spawnRate"] = 0.01;
+
     std::ofstream settingsOut("settings.json");
-    settingsOut << settings.dump(4);
+    settingsOut << settings.dump(2);
     settingsOut.close();
 }
 
@@ -268,6 +267,9 @@ void GameManager::init() {
     playerDmg = settings["player"]["dmg"];
     playerShotDmg = settings["player"]["shotDmg"];
 
+    game.itemsProps["HealPotionRestoration"] = settings["items"]["h"]["healRestoration"];
+    game.itemsProps["HealPotionSpawnRate"] = settings["items"]["h"]["spawnRate"];
+
     game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(mapWidth / 2, mapHeight / 2))));
 
     for (auto& [chr, params] : settings["meleeEnemies"].items()) {
@@ -288,10 +290,17 @@ void GameManager::init() {
 
 void GameManager::drawMap(win_ptr& win) {
     for (size_t i = 0; i < game.map.size(); i++) {
-        mvwprintw(win.get(), 1 + i, 1, game.map[i].c_str());
+        for (size_t j = 0; j < game.map[i].size(); j++) {
+            if (util::distance(player->getPos(), util::Point(j, i)) > playerSight)
+                mvwaddch(win.get(), 1 + i, 1 + j, '~');
+            else
+                mvwaddch(win.get(), 1 + i, 1 + j, game.map[i][j]);
+        }
+        //mvwprintw(win.get(), 1 + i, 1, game.map[i].c_str());
     }
 }
 
 void GameManager::drawStats(win_ptr& win) {
-    mvwprintw(win.get(), 1, 1, "Player HP: %d", player->getHp());
+    mvwprintw(win.get(), 1, 1, "Level: %d", curLevel);
+    mvwprintw(win.get(), 5, 1, "Player HP: %d", player->getHp());
 }

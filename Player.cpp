@@ -16,10 +16,6 @@ Player::Player() : Entity('<', 10, 2, 0, util::Point(0, 0)), shots(0), shotDamag
 
 Player::Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id) : Entity('<', maxHp, dmg, id, pos), shots(0), shotDamage(shotDmg) {}
 
-Player& Player::getRef() {
-    return *this;
-}
-
 void Player::update(util::GameInfo& game) {
     std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)

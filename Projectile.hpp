@@ -7,8 +7,6 @@ class Projectile : public Entity {
 public:
     Projectile(int id, util::Point pos, util::Point direction, char sym, int dmg, bool isPlayer);
 
-    Projectile& getRef();
-
     void update(util::GameInfo& game);
 
 private:

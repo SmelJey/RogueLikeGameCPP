@@ -21,6 +21,7 @@ public:
     int getDmg() const;
 
     virtual void interact(Projectile&, util::GameInfo&) override;
+    virtual void update(util::GameInfo& game) = 0;
 
     void setDmg(int dmg);
 

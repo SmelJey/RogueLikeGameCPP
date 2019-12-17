@@ -18,10 +18,6 @@ void Enemy::interact(Player& pl, util::GameInfo& game) {
     this->getHit(pl.getDmg(), game);
 }
 
-Enemy& Enemy::getRef() {
-    return *this;
-}
-
 util::Point Enemy::bfs(const std::vector<std::string>& map, const util::Point& target, int distance) const {
     const util::Point d[4] = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} };
 

@@ -16,8 +16,6 @@ public:
 
     virtual void interact(Player&, util::GameInfo&) override;
 
-    Enemy& getRef() override;
-
 protected:
     const Entity& playerRef;
 

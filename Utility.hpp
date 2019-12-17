@@ -6,12 +6,14 @@
 #include <set>
 #include <unordered_set>
 #include <queue>
+#include <map>
 
 class Entity;
 class Player;
 class Enemy;
 class Projectile;
 class Item;
+class Object;
 
 namespace util {
 
@@ -72,7 +74,10 @@ namespace util {
 
         std::vector<std::unique_ptr<Entity>> entities;
         std::deque<std::unique_ptr<Entity>> projectiles;
-        std::vector<std::unique_ptr<Item>> items;
+        std::vector<std::unique_ptr<Object>> items;
+
+        // Items props;
+        std::map<std::string, double> itemsProps;
 
         int curId = 1;
     };
