@@ -93,6 +93,27 @@ namespace util {
         return p.x >= 0 && p.y >= 0 && p.y < map.size() && p.x < map[0].size();
     }
 
+    void GameInfo::updateAll() {
+        for (int i = 0; i < this->projectiles.size(); i++) {
+            if (this->projectiles[i]->isEnabled()) {
+                this->projectiles[i]->update(*this);
+            }
+        }
+
+        for (int i = 0; i < this->projectiles.size(); i++) {
+            if (this->projectiles[i]->isEnabled())
+                break;
+            this->projectiles.pop_front();
+            i--;
+        }
+
+        for (int i = this->entities.size() - 1; i >= 0; i--) {
+            if (this->entities[i]->isEnabled()) {
+                this->entities[i]->update(*this);
+            }
+        }
+    }
+
     int GameInfo::getNextId() {
         this->curId++;
         return this->curId - 1;

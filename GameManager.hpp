@@ -28,7 +28,7 @@ public:
     struct EntitySpec {
         EntitySpec(T inst, double spawnRate) : instance(inst), spawnRate(spawnRate) {}
 
-        void instantiate(util::GameInfo& game, util::Point pos) {
+        void instantiate(util::GameInfo& game, util::Point pos) const {
             game.entities.push_back(std::unique_ptr<Entity>(new T(game.getNextId(), pos, instance)));
         }
 
@@ -36,35 +36,30 @@ public:
         double spawnRate;
     };
 
-    std::vector<EntitySpec<MeleeEnemy>> meleeSpecs;
-    std::vector<EntitySpec<RangeEnemy>> rangeSpecs;
-
     GameManager();
 
     void run();
 
 private:
-    void showMenu();
+    void showMenu(const std::string& message);
+
+    void rewriteSettings();
+
+    inline bool isFileExist(const std::string& name);
+
+    void init();
+
+    void levelInit();
 
     void gameOver();
 
     bool runLevel();
 
-    inline bool isFileExist(const std::string& name);
+    void drawMap(win_ptr& win) const;
 
-    void rewriteSettings();
-
-    void levelInit();
-
-    void init();
-
-    void drawMap(win_ptr& win);
-
-    void drawStats(win_ptr& win);
+    void drawStats(win_ptr& win) const;
 
     void randomSpawn();
-
-    bool isKeyPressed(int keyCode);
 
     // settings.
     size_t mapWidth = 80;
@@ -74,7 +69,7 @@ private:
     int playerShotDmg = 2;
     int playerSight = 20;
 
-    int maxEntitiesCount = 150;
+    size_t maxEntitiesCount = 150;
     int curLevel = 0;
     int seed = 0;
 
@@ -86,5 +81,12 @@ private:
     util::GameInfo game;
 
     std::vector<std::string> defaultMap;
+
+    std::vector<EntitySpec<MeleeEnemy>> meleeSpecs;
+    std::vector<EntitySpec<RangeEnemy>> rangeSpecs;
+
     MapGenerator mapGenerator;
+
+    const size_t menuHeight = 40;
+    const size_t menuWidth = 120;
 };

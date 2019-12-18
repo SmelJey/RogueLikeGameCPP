@@ -9,6 +9,8 @@ public:
     Object(char ch, int id, util::Point position);
 
     util::Point getPos() const;
+    void setPos(util::Point pos);
+
     char getSym() const;
     bool isEnabled() const;
 

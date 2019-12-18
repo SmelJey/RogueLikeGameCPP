@@ -12,28 +12,14 @@ RangeEnemy::RangeEnemy(int id, util::Point pos, const RangeEnemy& src)
 }
 
 void RangeEnemy::update(util::GameInfo& game) {
-    std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
         return;
     moveTimer--;
     if (moveTimer <= 0) {
         moveTimer = moveCd;
-        util::Point nextPos(this->pos);
         lastDirection = rand() % 4;
-        nextPos += directions[lastDirection];
-        if (util::checkPoint(game.map, nextPos)) {
-            if (game[nextPos] != '#') {
-                if (game[nextPos] == '.') {
-                    game[pos] = '.';
-                    this->pos = nextPos;
-                } else {
-                    game[pos] = symbol;
-                    auto& tmp = findCollision(nextPos, game);
-                    tmp.interact(*this, game);
-                    return;
-                }
-            }
-        }
+        util::Point nextPos(this->pos + directions[lastDirection]);
+        tryToMove(nextPos, game);
     }
     
     shootingTimer--;

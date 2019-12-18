@@ -14,7 +14,6 @@ MeleeEnemy::MeleeEnemy(int id, util::Point pos, const MeleeEnemy& src)
 }
 
 void MeleeEnemy::update(util::GameInfo& game) {
-    std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (this->hp <= 0)
         return;
     moveTimer--;
@@ -30,17 +29,7 @@ void MeleeEnemy::update(util::GameInfo& game) {
             nextPos.randomize(game.map);
         }
 
-        if (game[nextPos] != '#') {
-            if (game[nextPos] == '.') {
-                game[pos] = '.';
-                this->pos = nextPos;
-            } else {
-                game[pos] = symbol;
-                auto& tmp = findCollision(nextPos, game);
-                tmp.interact(*this, game);
-                return;
-            }
-        }
+        tryToMove(nextPos, game);
     }
 
     game[pos] = symbol;

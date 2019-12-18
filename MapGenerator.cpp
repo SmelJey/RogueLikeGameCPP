@@ -8,11 +8,8 @@
 #include "HealPotion.hpp"
 #include "Item.hpp"
 
-MapGenerator::MapGenerator(int seed) : seed(seed) {
-    srand(seed);
-}
 
-void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& game) {
+void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& game) const {
     generateMaze(map, 0.75);
 
     for (int i = map.size() - 1; i >= 0; i--) {
@@ -36,26 +33,7 @@ void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& ga
     }
 }
 
-int MapGenerator::getSeed() {
-    return seed;
-}
-
-util::Point dfs(util::Point node, std::map<util::Point, std::vector<util::Point>>& adjList, std::set<util::Point>& used, std::vector<std::string> &map) {
-    used.insert(node);
-    util::Point farestPoint(node);
-    for (auto& v : adjList[node]) {
-        if (used.count(v) == 0) {
-            map[(node.y + v.y) / 2][(node.x + v.x) / 2] = '.';
-            auto res = dfs(v, adjList, used, map);
-            if (std::abs(node.x - res.x) + std::abs(node.y - res.y) > std::abs(node.x - farestPoint.x) + std::abs(node.y - farestPoint.y)) {
-                farestPoint = res;
-            }
-        }
-    }
-    return farestPoint;
-}
-
-void MapGenerator::generateMaze(std::vector<std::string> &map, double prob) {
+void MapGenerator::generateMaze(std::vector<std::string> &map, double prob) const {
     for (size_t i = 0; i < map.size(); i++) {
         for (size_t j = 0; j < map[i].size(); j++) {
             map[i][j] = '#';
@@ -114,28 +92,38 @@ void MapGenerator::generateMaze(std::vector<std::string> &map, double prob) {
 
     for (size_t i = 3; i < map.size(); i++) {
         for (size_t j = 3; j < map[i].size(); j++) {
-            if (map[i][j] == '.') {
-                if (map[i - 2][j] == '.'
-                    && map[i][j - 2] == '.'
-                    && map[i - 2][j - 2] == '.') {
-                    double p = (rand() % 100) / 100.0;
-                    if (p <= prob) {
-                        for (int i0 = -2; i0 < 1; i0++) {
-                            for (int j0 = -2; j0 < 1; j0++) {
-                                map[i + i0][j + j0] = '.';
-                            }
-                        }
+            if (map[i][j]           == '.'
+                && map[i - 2][j]    == '.'
+                && map[i][j - 2]    == '.'
+                && map[i - 2][j - 2] == '.') {
+                double p = (rand() % 100) / 100.0;
+                if (p > prob)
+                    continue;
+                for (int i0 = -2; i0 < 1; i0++) {
+                    for (int j0 = -2; j0 < 1; j0++) {
+                        map[i + i0][j + j0] = '.';
                     }
                 }
             }
         }
     }
-
-    for (int i0 = -2; i0 < 1; i0++) {
-        for (int j0 = -2; j0 < 1; j0++) {
-            map[map.size() / 2 + i0][map[map.size() / 2].size() / 2 + j0] = '.';
-        }
-    }
 }
 
-void cellAutomatonSimulate(util::GameInfo& game);
+void MapGenerator::cellAutomatonSimulate(util::GameInfo& game) const {
+
+}
+
+util::Point MapGenerator::dfs(util::Point node, std::map<util::Point, std::vector<util::Point>>& adjList, std::set<util::Point>& used, std::vector<std::string>& map) const {
+    used.insert(node);
+    util::Point farestPoint(node);
+    for (auto& v : adjList[node]) {
+        if (used.count(v) == 0) {
+            map[(node.y + v.y) / 2][(node.x + v.x) / 2] = '.';
+            auto res = dfs(v, adjList, used, map);
+            if (std::abs(node.x - res.x) + std::abs(node.y - res.y) > std::abs(node.x - farestPoint.x) + std::abs(node.y - farestPoint.y)) {
+                farestPoint = res;
+            }
+        }
+    }
+    return farestPoint;
+}

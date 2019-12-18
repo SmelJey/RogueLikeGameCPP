@@ -5,6 +5,5 @@ int main() {
     GameManager gm;
     gm.run();
 
-
     return 0;
 }

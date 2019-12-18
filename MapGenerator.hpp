@@ -6,18 +6,14 @@
 
 class MapGenerator {
 public:
-    MapGenerator(int seed = 0);
-
-    void generateMap(std::vector<std::string> &map, util::GameInfo& game);
-
-    int getSeed();
+    void generateMap(std::vector<std::string> &map, util::GameInfo& game) const;
 
 private:
-    void fillRandom(util::GameInfo& game, double prob);
+    void fillRandom(util::GameInfo& game, double prob) const;
 
-    void cellAutomatonSimulate(util::GameInfo& game);
+    void cellAutomatonSimulate(util::GameInfo& game) const;
 
-    void generateMaze(std::vector<std::string> &map, double prob);
+    void generateMaze(std::vector<std::string> &map, double prob) const;
 
-    int seed;
+    util::Point dfs(util::Point node, std::map<util::Point, std::vector<util::Point>>& adjList, std::set<util::Point>& used, std::vector<std::string>& map) const;
 };

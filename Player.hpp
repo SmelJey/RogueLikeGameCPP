@@ -17,6 +17,9 @@ public:
 
     Player(int maxHp, int dmg, int shotDmg, util::Point pos, int id = 0);
 
+    int getShots() const;
+    void setShots(int shots);
+
     void update(util::GameInfo& game) override;
 
     virtual void interact(Enemy&, util::GameInfo&) override;

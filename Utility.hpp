@@ -62,6 +62,8 @@ namespace util {
 
 
     struct GameInfo {
+        void updateAll();
+
         int getNextId();
 
         char& operator[](const Point& pos);

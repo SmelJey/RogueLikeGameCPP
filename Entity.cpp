@@ -15,7 +15,6 @@ Entity::Entity(char sym, int maxHp, int dmg, int id, util::Point pos) : Object(s
 int Entity::getHp() const {
     return hp;
 }
-
 void Entity::setHp(int hp) {
     this->hp = hp;
 }
@@ -30,21 +29,13 @@ void Entity::setMaxHp(int hp) {
 int Entity::getDmg() const {
     return damage;
 }
-
-void Entity::interact(Projectile& obj, util::GameInfo& game) {
-    this->getHit(obj.getDmg(), game);
-    Object::interact(obj, game);
-}
-
 void Entity::setDmg(int dmg) {
     this->damage = dmg;
 }
 
-util::Point Entity::getPos() const {
-    return pos;
-}
-void Entity::setPos(util::Point pos) {
-    this->pos = pos;
+void Entity::interact(Projectile& obj, util::GameInfo& game) {
+    this->getHit(obj.getDmg(), game);
+    Object::interact(obj, game);
 }
 
 void Entity::getHit(int dmg, util::GameInfo& game) {
@@ -57,25 +48,25 @@ void Entity::getHit(int dmg, util::GameInfo& game) {
     hp = std::min(hp, maxHp);
 }
 
-Object& Entity::findCollision(util::Point pos, util::GameInfo& game) {
+Object& Entity::findCollision(util::Point pos, util::GameInfo& game) const {
     auto it = std::find_if(game.entities.begin(), game.entities.end(), [pos](std::unique_ptr<Entity>& el) {
         return el->getPos() == pos;
-    });
-    if (it == game.entities.end()) {
-        auto itp = std::find_if(game.projectiles.begin(), game.projectiles.end(), [pos](std::unique_ptr<Entity>& el) {
-            return el->getPos() == pos;
         });
-        if (itp == game.projectiles.end()) {
-            auto iti = std::find_if(game.items.begin(), game.items.end(), [pos](std::unique_ptr<Object>& el) {
-                return el->getPos() == pos;
-            });
+    if (it != game.entities.end())
+        return *it->get();
 
-            if (iti == game.items.end())
-                throw std::runtime_error("Bad collision happened");
-
-            return *iti->get();
-        }
+    auto itp = std::find_if(game.projectiles.begin(), game.projectiles.end(), [pos](std::unique_ptr<Entity>& el) {
+        return el->getPos() == pos;
+        });
+    if (itp != game.projectiles.end())
         return *itp->get();
-    }
-    return *it->get();
+
+    auto iti = std::find_if(game.items.begin(), game.items.end(), [pos](std::unique_ptr<Object>& el) {
+        return el->getPos() == pos;
+        });
+
+    if (iti == game.items.end())
+        throw std::runtime_error("Bad collision happened");
+
+    return *iti->get();
 }

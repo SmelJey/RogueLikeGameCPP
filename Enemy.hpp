@@ -17,11 +17,13 @@ public:
     virtual void interact(Player&, util::GameInfo&) override;
 
 protected:
+    util::Point bfs(const std::vector<std::string>& map, const util::Point& target, int distance) const;
+
+    void tryToMove(util::Point newPos, util::GameInfo& game);
+
     const Entity& playerRef;
 
     int sightRange = 15;
     int moveCd = 2;
     int moveTimer = 0;
-
-    util::Point bfs(const std::vector<std::string>& map, const util::Point& target, int distance) const;
 };

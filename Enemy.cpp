@@ -62,3 +62,15 @@ util::Point Enemy::bfs(const std::vector<std::string>& map, const util::Point& t
 
     return res;
 }
+
+void Enemy::tryToMove(util::Point newPos, util::GameInfo& game) {
+    if (util::checkPoint(game.map, newPos) && game[newPos] != '#') {
+        if (game[newPos] == '.') {
+            game[pos] = '.';
+            this->pos = newPos;
+        } else {
+            auto& tmp = findCollision(newPos, game);
+            tmp.interact(*this, game);
+        }
+    }
+}

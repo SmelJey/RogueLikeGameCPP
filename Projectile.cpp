@@ -9,7 +9,6 @@ class Enemy;
 Projectile::Projectile(int id, util::Point pos, util::Point direction, char sym, int dmg, bool isPlayer) : Entity(sym, 1, dmg, id, pos), speed(direction), isPlayer(isPlayer) {}
 
 void Projectile::update(util::GameInfo& game) {
-    std::pair<Object&, Object&> collision(dynamic_cast<Object&>(*this), dynamic_cast<Object&>(*this));
     if (game[this->pos] != '.' && game[this->pos] != symbol) {
         enabled = false;
         if (game[this->pos] == '#') {
@@ -22,11 +21,7 @@ void Projectile::update(util::GameInfo& game) {
     
     game[this->pos] = '.';
     auto newPos = pos + speed;
-    if (!util::checkPoint(game.map, newPos)) {
-        enabled = false;
-        return;
-    }
-    if (game[newPos] == '#') {
+    if (!util::checkPoint(game.map, newPos) || game[newPos] == '#') {
         enabled = false;
         return;
     }
