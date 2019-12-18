@@ -1,8 +1,12 @@
 {
   "items": {
-    "h": {
-      "healRestoration": 3,
+    "%": {
+      "ammo": 4,
       "spawnRate": 0.005
+    },
+    "+": {
+      "healRestoration": 3,
+      "spawnRate": 0.0025
     }
   },
   "map": {

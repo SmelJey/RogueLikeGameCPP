@@ -7,6 +7,7 @@ class Object {
 public:
     Object();
     Object(char ch, int id, util::Point position);
+    virtual ~Object() = default;
 
     util::Point getPos() const;
     void setPos(util::Point pos);

@@ -6,6 +6,7 @@
 
 #include "Portal.hpp"
 #include "HealPotion.hpp"
+#include "Ammo.hpp"
 #include "Item.hpp"
 
 
@@ -22,11 +23,13 @@ void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& ga
         }
     }
 
-    for (int i = 0; i < map.size(); i++) {
-        for (int j = 0; j < map[i].size(); j++) {
+    for (size_t i = 0; i < map.size(); i++) {
+        for (size_t j = 0; j < map[i].size(); j++) {
             if (map[i][j] == '.') {
-                if (rand() % 100 / 100.0 < game.itemsProps["HealPotionSpawnRate"]) {
-                    game.items.push_back(std::unique_ptr<Object>(new HealPotion('h', game.itemsProps["HealPotionRestoration"], game.getNextId(), util::Point(j, i))));
+                if (rand() % 100 / 100.0 < game.itemsProps["AmmoSpawnRate"]) {
+                    game.items.push_back(std::unique_ptr<Object>(new Ammo('%', static_cast<int>(game.itemsProps["AmmoRestoration"]), game.getNextId(), util::Point(j, i))));
+                } else if (rand() % 100 / 100.0 < game.itemsProps["HealPotionSpawnRate"]) {
+                    game.items.push_back(std::unique_ptr<Object>(new HealPotion('+', static_cast<int>(game.itemsProps["HealPotionRestoration"]), game.getNextId(), util::Point(j, i))));
                 }
             }
         }

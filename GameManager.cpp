@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Utility.hpp"
 #include "Entity.hpp"
@@ -77,7 +77,7 @@ void GameManager::run() {
 
     while (true) {
         srand(seed);
-        for (int i = 0; i < 10; i++) {
+        while (true) {
             curLevel++;
             if (!runLevel()) {
                 break;
@@ -135,8 +135,11 @@ void GameManager::rewriteSettings() {
     settings["rangeEnemies"]["S"]["shotDmg"] = 3;
     settings["rangeEnemies"]["S"]["spawnRate"] = 0.1;
 
-    settings["items"]["h"]["healRestoration"] = 3;
-    settings["items"]["h"]["spawnRate"] = 0.005;
+    settings["items"]["+"]["healRestoration"] = 3;
+    settings["items"]["+"]["spawnRate"] = 0.0025;
+
+    settings["items"]["%"]["ammo"] = 4;
+    settings["items"]["%"]["spawnRate"] = 0.005;
 
     std::ofstream settingsOut("settings.json");
     settingsOut << settings.dump(2);
@@ -165,8 +168,11 @@ void GameManager::init() {
         playerShotDmg = settings["player"]["shotDmg"];
         playerSight = settings["player"]["sightRange"];
 
-        game.itemsProps["HealPotionRestoration"] = settings["items"]["h"]["healRestoration"];
-        game.itemsProps["HealPotionSpawnRate"] = settings["items"]["h"]["spawnRate"];
+        game.itemsProps["HealPotionRestoration"] = settings["items"]["+"]["healRestoration"];
+        game.itemsProps["HealPotionSpawnRate"] = settings["items"]["+"]["spawnRate"];
+        game.itemsProps["AmmoRestoration"] = settings["items"]["%"]["ammo"];
+        game.itemsProps["AmmoSpawnRate"] = settings["items"]["%"]["spawnRate"];
+
     } catch (const json::exception&) {
         errMessage = "Error while handling settings.json";
     }
@@ -248,9 +254,7 @@ bool GameManager::runLevel() {
         }
 
         if (!errMessage.empty()) {
-            mvwprintw(mapWindow.get(), 20, 20, errMessage.c_str());
-            wrefresh(mapWindow.get());
-            wclear(mapWindow.get());
+            showMenu(errMessage);
             continue;
         }
         randomSpawn();
@@ -302,6 +306,8 @@ void GameManager::drawMap(win_ptr& win) const {
 
 void GameManager::drawStats(win_ptr& win) const {
     mvwprintw(win.get(), 1, 1, "Level: %d", curLevel);
-    mvwprintw(win.get(), 5, 1, "Player HP: %d", player->getHp());
+    mvwprintw(win.get(), 5, 1, "Player HP: ");
+    for (int i = 0; i < player->getHp(); i++)
+        mvwprintw(win.get(), 5, 13 + i * 2, "o");
     mvwprintw(win.get(), 7, 1, "Player shots: %d", dynamic_cast<Player*>(player)->getShots());
 }

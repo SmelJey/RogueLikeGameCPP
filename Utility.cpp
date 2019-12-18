@@ -90,17 +90,17 @@ namespace util {
     }
 
     bool checkPoint(const std::vector<std::string>& map, const Point& p) {
-        return p.x >= 0 && p.y >= 0 && p.y < map.size() && p.x < map[0].size();
+        return p.x >= 0 && p.y >= 0 && p.y < static_cast<int>(map.size()) && p.x < static_cast<int>(map[0].size());
     }
 
     void GameInfo::updateAll() {
-        for (int i = 0; i < this->projectiles.size(); i++) {
+        for (size_t i = 0; i < this->projectiles.size(); i++) {
             if (this->projectiles[i]->isEnabled()) {
                 this->projectiles[i]->update(*this);
             }
         }
 
-        for (int i = 0; i < this->projectiles.size(); i++) {
+        for (size_t i = 0; i < this->projectiles.size(); i++) {
             if (this->projectiles[i]->isEnabled())
                 break;
             this->projectiles.pop_front();
