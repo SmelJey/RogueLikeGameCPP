@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{92b32a15-1d52-4e33-b127-222a11d49222}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="EntitiesHpp">
+      <UniqueIdentifier>{3fae677c-63fe-4cd8-8539-8cd845b45fb0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Items">
+      <UniqueIdentifier>{46462a75-1852-4788-9039-7c1dbfa919eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ItemsHpp">
+      <UniqueIdentifier>{5022b2f3-ebe8-46af-b254-4ea4beec6716}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -24,38 +36,41 @@
     <ClCompile Include="Object.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Entity.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Enemy.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="Projectile.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="GameManager.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="MeleeEnemy.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="RangeEnemy.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="MapGenerator.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
+    <ClCompile Include="Interactor.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="MeleeEnemy.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="RangeEnemy.cpp">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Item.cpp">
+      <Filter>Items</Filter>
     </ClCompile>
     <ClCompile Include="Portal.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Items</Filter>
     </ClCompile>
     <ClCompile Include="HealPotion.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Items</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,35 +83,38 @@
     <ClInclude Include="Utility.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Entity.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Enemy.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Projectile.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="MeleeEnemy.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="RangeEnemy.hpp">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="MapGenerator.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Item.hpp">
+    <ClInclude Include="Interactor.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Portal.hpp">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="Enemy.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Projectile.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="RangeEnemy.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="MeleeEnemy.hpp">
+      <Filter>EntitiesHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Item.hpp">
+      <Filter>ItemsHpp</Filter>
     </ClInclude>
     <ClInclude Include="HealPotion.hpp">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>ItemsHpp</Filter>
+    </ClInclude>
+    <ClInclude Include="Portal.hpp">
+      <Filter>ItemsHpp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

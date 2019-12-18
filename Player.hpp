@@ -28,10 +28,10 @@ public:
 private:
     void shoot(util::GameInfo& game);
 
-    const std::vector<std::tuple<char, util::Point, char, util::Point>> moves = { { 'A', util::Point(-1, 0), '<', util::Point::Left() },
-                                                                { 'W', util::Point(0, -1), '^', util::Point::Up() },
-                                                                { 'D', util::Point(1, 0), '>', util::Point::Right() },
-                                                                { 'S', util::Point(0, 1), 'v', util::Point::Down() } };
+    const std::vector<std::tuple<char, util::Point, char, util::Point>> moves = { { 'a', util::Point(-1, 0), '<', util::Point::Left() },
+                                                                { 'w', util::Point(0, -1), '^', util::Point::Up() },
+                                                                { 'd', util::Point(1, 0), '>', util::Point::Right() },
+                                                                { 's', util::Point(0, 1), 'v', util::Point::Down() } };
 
     int lastDir = 0;
     int shotDamage = 2;

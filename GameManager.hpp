@@ -64,20 +64,24 @@ private:
 
     void randomSpawn();
 
+    bool isKeyPressed(int keyCode);
+
     // settings.
     size_t mapWidth = 80;
     size_t mapHeight = 40;
     int playerHp = 10;
     int playerDmg = 3;
     int playerShotDmg = 2;
-    
-    int playerSight = 16; 
+    int playerSight = 20;
+
     int maxEntitiesCount = 150;
     int curLevel = 0;
     int seed = 0;
 
     win_ptr mapWindow;
     win_ptr infoWindow;
+    
+    std::string errMessage = "";
 
     util::GameInfo game;
 

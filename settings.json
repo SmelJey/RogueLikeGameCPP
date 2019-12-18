@@ -1,8 +1,8 @@
 {
   "items": {
     "h": {
-      "healRestoration": 5,
-      "spawnRate": 0.01
+      "healRestoration": 3,
+      "spawnRate": 0.005
     }
   },
   "map": {
@@ -21,15 +21,16 @@
   "player": {
     "dmg": 3,
     "hp": 10,
-    "shotDmg": 2
+    "shotDmg": 3,
+    "sightRange": 20
   },
   "rangeEnemies": {
     "S": {
       "dmg": 1,
       "maxHp": 10,
       "moveCd": 3,
-      "shotCd": 15,
-      "shotDmg": 15,
+      "shotCd": 10,
+      "shotDmg": 3,
       "sightRange": 15,
       "spawnRate": 0.1
     }

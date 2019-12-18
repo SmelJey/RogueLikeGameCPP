@@ -18,7 +18,6 @@ void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& ga
     for (int i = map.size() - 1; i >= 0; i--) {
         for (int j = map[i].size() - 1; j >= 0; j--) {
             if (map[i][j] == '.') {
-                map[i][j] = 'Q';
                 game.items.push_back(std::unique_ptr<Object>(new Portal('Q', game.getNextId(), util::Point(j, i))));
                 i = 0;
                 break;
@@ -29,7 +28,6 @@ void MapGenerator::generateMap(std::vector<std::string> &map, util::GameInfo& ga
     for (int i = 0; i < map.size(); i++) {
         for (int j = 0; j < map[i].size(); j++) {
             if (map[i][j] == '.') {
-                game.itemsProps["HealPotionRestoration"];
                 if (rand() % 100 / 100.0 < game.itemsProps["HealPotionSpawnRate"]) {
                     game.items.push_back(std::unique_ptr<Object>(new HealPotion('h', game.itemsProps["HealPotionRestoration"], game.getNextId(), util::Point(j, i))));
                 }

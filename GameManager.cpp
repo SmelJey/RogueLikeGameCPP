@@ -5,6 +5,7 @@
 #include "Player.hpp"
 #include "MeleeEnemy.hpp"
 #include "RangeEnemy.hpp"
+#include "Interactor.hpp"
 #include "GameManager.hpp"
 
 #include <curses.h>
@@ -15,7 +16,6 @@
 #include <string>
 #include <fstream>
 #include <thread>
-#include <Windows.h>
 
 #define player game.entities[0].get()
 
@@ -27,12 +27,9 @@ void destrWin(WINDOW* win) {
         wrefresh(win);
         delwin(win);
     }
-        
 }
 
 GameManager::GameManager() : mapWindow(nullptr, destrWin), infoWindow(nullptr, destrWin) {};
-
-
 
 void GameManager::randomSpawn() {
     for (auto& spec : meleeSpecs) {
@@ -69,6 +66,12 @@ void GameManager::run() {
     MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 1200, 800, TRUE);
     initscr();
     noecho();
+    halfdelay(1);
+    //nodelay(stdscr, false);
+    //cbreak();
+    //timeout(2);
+    //notimeout(stdscr, true);
+    //nocbreak();
     curs_set(FALSE);
 
     showMenu();
@@ -81,6 +84,7 @@ void GameManager::run() {
             if (!runLevel()) {
                 break;
             }
+            
         }
         gameOver();
     }
@@ -90,11 +94,12 @@ void GameManager::run() {
 void GameManager::showMenu() {
     auto menuWindow = win_ptr(newwin(40, 120, 0, 0), destrWin);
     while (true) {
+        Interactor::updateKeyState();
         wclear(menuWindow.get());
-        if (GetKeyState(VK_ESCAPE) & 0x8000) {
+        if (Interactor::isKeyPressed(27)) {
             exit(0);
         }
-        if (GetKeyState(VK_SPACE) & 0x8000) {
+        if (Interactor::isKeyPressed(' ')) {
             break;
         }
 
@@ -109,10 +114,13 @@ void GameManager::gameOver() {
     mapWindow.reset();
     infoWindow.reset();
 
+    curLevel = 0;
+
     auto menuWindow = win_ptr(newwin(40, 120, 0, 0), destrWin);
     using namespace std::chrono_literals;
     std::this_thread::sleep_for(200ms);
     while (true) {
+        Interactor::updateKeyState();
         wclear(menuWindow.get());
 
         mvwprintw(menuWindow.get(), 15, 56, "You died");
@@ -120,10 +128,10 @@ void GameManager::gameOver() {
         mvwprintw(menuWindow.get(), 23, 51, "Press ESC to exit");
         wrefresh(menuWindow.get());
 
-        if (GetKeyState(VK_ESCAPE) & 0x8000) {
+        if (Interactor::isKeyPressed(27)) {
             exit(0);
         }
-        if (GetKeyState(VK_SPACE) & 0x8000) {
+        if (Interactor::isKeyPressed(' ')) {
             break;
         }
     }
@@ -136,15 +144,21 @@ bool GameManager::runLevel() {
     infoWindow = win_ptr(newwin(mapHeight + 2, 40, 0, mapWidth + 2), destrWin);
 
     while (true) {
+        Interactor::updateKeyState();
+        if (Interactor::isKeyPressed(27) || player->getHp() <= 0) {
+            return false;
+        }
+
+        if (!errMessage.empty()) {
+            mvwprintw(mapWindow.get(), 20, 20, errMessage.c_str());
+            wrefresh(mapWindow.get());
+            wclear(mapWindow.get());
+            continue;
+        }
         randomSpawn();
 
         drawStats(infoWindow);
         box(infoWindow.get(), 0, 0);
-
-
-        if (GetKeyState(VK_ESCAPE) & 0x8000 || player->getHp() <= 0) {
-            return false;
-        }
 
         game.map = defaultMap;
         for (auto& entity : game.entities) {
@@ -181,13 +195,15 @@ bool GameManager::runLevel() {
             return true;
         }
 
+        wclear(mapWindow.get());
         drawMap(mapWindow);
         box(mapWindow.get(), 0, 0);
+        
         wrefresh(mapWindow.get());
-        wclear(mapWindow.get());
 
         wrefresh(infoWindow.get());
         wclear(infoWindow.get());
+        
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(120ms);
     }
@@ -203,9 +219,10 @@ void GameManager::rewriteSettings() {
 
     settings["map"]["width"] = mapWidth;
     settings["map"]["height"] = mapHeight;
-    settings["player"]["hp"] = playerHp;
-    settings["player"]["dmg"] = playerDmg;
-    settings["player"]["shotDmg"] = playerShotDmg;
+    settings["player"]["hp"] = 10;
+    settings["player"]["dmg"] = 3;
+    settings["player"]["shotDmg"] = 3;
+    settings["player"]["sightRange"] = 20;
 
     settings["meleeEnemies"]["Z"]["maxHp"] = 10;
     settings["meleeEnemies"]["Z"]["moveCd"] = 4;
@@ -217,12 +234,12 @@ void GameManager::rewriteSettings() {
     settings["rangeEnemies"]["S"]["moveCd"] = 3;
     settings["rangeEnemies"]["S"]["dmg"] = 1;
     settings["rangeEnemies"]["S"]["sightRange"] = 15;
-    settings["rangeEnemies"]["S"]["shotCd"] = 15;
-    settings["rangeEnemies"]["S"]["shotDmg"] = 15;
+    settings["rangeEnemies"]["S"]["shotCd"] = 10;
+    settings["rangeEnemies"]["S"]["shotDmg"] = 3;
     settings["rangeEnemies"]["S"]["spawnRate"] = 0.1;
 
-    settings["items"]["h"]["healRestoration"] = 5;
-    settings["items"]["h"]["spawnRate"] = 0.01;
+    settings["items"]["h"]["healRestoration"] = 3;
+    settings["items"]["h"]["spawnRate"] = 0.005;
 
     std::ofstream settingsOut("settings.json");
     settingsOut << settings.dump(2);
@@ -235,6 +252,9 @@ void GameManager::levelInit() {
         game.entities[0]->setPos(util::Point(1, 1));
         game.entities[0]->setHp(playerHp);
         game.entities[0]->setEnabled();
+
+        game.projectiles.clear();
+        game.items.clear();
     } else {
         game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(1,1))));
     }
@@ -261,31 +281,47 @@ void GameManager::init() {
     settingsIn >> settings;
     settingsIn.close();
 
-    mapWidth = settings["map"]["width"];
-    mapHeight = settings["map"]["height"];
-    playerHp = settings["player"]["hp"];
-    playerDmg = settings["player"]["dmg"];
-    playerShotDmg = settings["player"]["shotDmg"];
+    bool isError = false;
 
-    game.itemsProps["HealPotionRestoration"] = settings["items"]["h"]["healRestoration"];
-    game.itemsProps["HealPotionSpawnRate"] = settings["items"]["h"]["spawnRate"];
+    try {
+        mapWidth = settings["map"]["width"];
+        mapHeight = settings["map"]["height"];
+        playerHp = settings["player"]["hp"];
+        playerDmg = settings["player"]["dmg"];
+        playerShotDmg = settings["player"]["shotDmg"];
+        playerSight = settings["player"]["sightRange"];
+
+        game.itemsProps["HealPotionRestoration"] = settings["items"]["h"]["healRestoration"];
+        game.itemsProps["HealPotionSpawnRate"] = settings["items"]["h"]["spawnRate"];
+    } catch (const json::exception & e) {
+        errMessage = "Error while handling settings.json";
+    }
+    
 
     game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(mapWidth / 2, mapHeight / 2))));
 
-    for (auto& [chr, params] : settings["meleeEnemies"].items()) {
-        MeleeEnemy me(chr[0], params["maxHp"].get<int>(),
-            params["moveCd"].get<int>(), params["dmg"].get<int>(),
-            params["sightRange"].get<int>(), *player);
-        meleeSpecs.push_back(EntitySpec<MeleeEnemy>(me, params["spawnRate"].get<double>()));
-    }
+    if (errMessage.empty()) {
+        try {
+            for (auto& [chr, params] : settings["meleeEnemies"].items()) {
+                MeleeEnemy me(chr[0], params["maxHp"].get<int>(),
+                    params["moveCd"].get<int>(), params["dmg"].get<int>(),
+                    params["sightRange"].get<int>(), *player);
+                meleeSpecs.push_back(EntitySpec<MeleeEnemy>(me, params["spawnRate"].get<double>()));
+            }
 
-    for (auto& [chr, params] : settings["rangeEnemies"].items()) {
-        RangeEnemy me(chr[0], params["maxHp"].get<int>(),
-            params["moveCd"].get<int>(), params["dmg"].get<int>(),
-            params["sightRange"].get<int>(), *player,
-            params["shotCd"].get<int>(), params["shotDmg"].get<int>());
-        rangeSpecs.push_back(EntitySpec<RangeEnemy>(me, params["spawnRate"].get<double>()));
+            for (auto& [chr, params] : settings["rangeEnemies"].items()) {
+                RangeEnemy me(chr[0], params["maxHp"].get<int>(),
+                    params["moveCd"].get<int>(), params["dmg"].get<int>(),
+                    params["sightRange"].get<int>(), *player,
+                    params["shotCd"].get<int>(), params["shotDmg"].get<int>());
+                rangeSpecs.push_back(EntitySpec<RangeEnemy>(me, params["spawnRate"].get<double>()));
+            }
+        } catch (const json::exception & e) {
+            errMessage = "Error while handling settings.json";
+        }
+        
     }
+    
 }
 
 void GameManager::drawMap(win_ptr& win) {

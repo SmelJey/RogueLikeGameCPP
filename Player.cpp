@@ -6,6 +6,7 @@
 #include "Player.hpp"
 #include "Object.hpp"
 #include "Item.hpp"
+#include "Interactor.hpp"
 
 #include <curses.h>
 #include <Windows.h>
@@ -21,7 +22,7 @@ void Player::update(util::GameInfo& game) {
     if (this->hp <= 0)
         return;
     for (int i = 0; i < 4; i++) {
-        if (GetKeyState(std::get<0>(moves[i])) & 0x8000) {
+        if (Interactor::isKeyPressed(std::get<0>(moves[i]))) {
             auto newPos = this->pos + std::get<1>(moves[i]);
             lastDir = i;
             this->symbol = std::get<2>(moves[i]);
@@ -40,7 +41,7 @@ void Player::update(util::GameInfo& game) {
             }
         }
     }
-    if (GetKeyState('E') & 0x8000) {
+    if (Interactor::isKeyPressed('e')) {
         auto checkPoint = this->pos + std::get<3>(moves[lastDir]);
         if (util::checkPoint(game.map, checkPoint) && game[checkPoint] != '#') {
             if (game[checkPoint] != '.') {
