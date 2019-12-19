@@ -1,15 +1,22 @@
 #include "Interactor.hpp"
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
 int Interactor::lastKey = 0;
 
 bool Interactor::isKeyPressed(int keyCode) {
-    //flushinp();
-    //lastKey = wgetch(stdscr);
+#ifdef _WIN32
+    return (GetKeyState(VkKeyScan(keyCode)) & 0x8000);
+#endif
     return lastKey == keyCode;
 }
 
 void Interactor::updateKeyState() {
-    //flushinp();
+#ifdef _WIN32
+    return;
+#endif
     lastKey = wgetch(stdscr);
+    
     
 }

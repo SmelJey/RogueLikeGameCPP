@@ -19,6 +19,9 @@ void Object::setPos(util::Point pos) {
 char Object::getSym() const {
     return symbol;
 }
+void Object::setSym(char sym) {
+    this->symbol = sym;
+}
 
 bool Object::isEnabled() const {
     return enabled;

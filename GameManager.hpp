@@ -89,4 +89,10 @@ private:
 
     const size_t menuHeight = 40;
     const size_t menuWidth = 120;
+    const size_t infoWindowWidth = 40;
+
+    const size_t minMapWidth = 10;
+    const size_t minMapHeight = 10;
+    const size_t maxMapWidth = 105;
+    const size_t maxMapHeight = 45;
 };

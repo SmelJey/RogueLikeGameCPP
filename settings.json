@@ -20,6 +20,13 @@
       "moveCd": 4,
       "sightRange": 15,
       "spawnRate": 0.2
+    },
+    "G": {
+      "dmg": 1,
+      "maxHp": 10,
+      "moveCd": 1,
+      "sightRange": 30,
+      "spawnRate": 0.15
     }
   },
   "player": {

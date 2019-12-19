@@ -2,7 +2,6 @@
 
 #include "Utility.hpp"
 
-
 class Object {
 public:
     Object();
@@ -13,6 +12,8 @@ public:
     void setPos(util::Point pos);
 
     char getSym() const;
+    void setSym(char sym);
+
     bool isEnabled() const;
 
     void setEnabled(bool val = true);

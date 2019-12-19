@@ -36,7 +36,7 @@ void GameManager::randomSpawn() {
         if (game.entities.size() > maxEntitiesCount)
             return;
         double p = (rand() % 100) / 100.0;
-        double difficultyLvl = (curLevel < 20 ? curLevel * 1.0 / 100 : 0.2 + 0.5 - 1.0 / (curLevel - 18));
+        double difficultyLvl = (curLevel < 20 ? curLevel * 1.0 / 100 : 0.2 + 0.5 - 1.0 / (curLevel - 18ll));
         if (p < spec.spawnRate + difficultyLvl) {
             util::Point checkPoint(rand() % mapWidth, rand() % mapHeight);
             if (util::checkPoint(game.map, checkPoint) && game[checkPoint] == '.' && util::distance(checkPoint, player->getPos()) > playerSight + 5) {
@@ -59,11 +59,18 @@ void GameManager::randomSpawn() {
 }
 
 void GameManager::run() {
+#ifdef _WIN32
+    long consoleParams;
     HWND console = GetConsoleWindow();
     RECT ConsoleRect;
     GetWindowRect(console, &ConsoleRect);
 
     MoveWindow(console, ConsoleRect.left, ConsoleRect.top, 1200, 800, TRUE);
+    consoleParams = GetWindowLong(console, GWL_STYLE);
+    consoleParams &= ~WS_SIZEBOX;
+    consoleParams &= ~WS_THICKFRAME;
+    SetWindowLong(console, GWL_STYLE, consoleParams);
+#endif
     initscr();
     noecho();
     halfdelay(1);
@@ -74,7 +81,6 @@ void GameManager::run() {
     init();
     if (seed == 0)
         seed = clock();
-
     while (true) {
         srand(seed);
         while (true) {
@@ -157,12 +163,19 @@ void GameManager::init() {
     }
     std::ifstream settingsIn("settings.json");
     json settings;
-    settingsIn >> settings;
-    settingsIn.close();
-
     try {
+        settingsIn >> settings;
         mapWidth = settings["map"]["width"];
         mapHeight = settings["map"]["height"];
+
+        if (mapWidth < minMapWidth || mapHeight < minMapHeight) {
+            errMessage = "Error: map is too small";
+        }
+        if (mapWidth > maxMapWidth || mapHeight > maxMapHeight) {
+            errMessage = "Error: map is too big";
+        }
+           
+
         playerHp = settings["player"]["hp"];
         playerDmg = settings["player"]["dmg"];
         playerShotDmg = settings["player"]["shotDmg"];
@@ -176,6 +189,7 @@ void GameManager::init() {
     } catch (const json::exception&) {
         errMessage = "Error while handling settings.json";
     }
+    settingsIn.close();
     if (settings["map"].contains("seed")) {
         seed = settings["map"]["seed"];
     }
@@ -213,11 +227,7 @@ void GameManager::levelInit() {
     } else {
         game.entities.push_back(std::unique_ptr<Player>(new Player(playerHp, playerDmg, playerShotDmg, util::Point(1, 1))));
     }
-
-    game.isWin = false;
-    game.map.clear();
-    game.items.clear();
-    game.projectiles.clear();
+    game.reset();
     defaultMap.clear();
 
     defaultMap.resize(mapHeight);
@@ -226,7 +236,7 @@ void GameManager::levelInit() {
             defaultMap[i].push_back('.');
         }
     }
-    mapGenerator.generateMap(defaultMap, game);
+    mapGenerator.generateMap(defaultMap, game, curLevel);
 }
 
 void GameManager::gameOver() {
@@ -242,14 +252,18 @@ void GameManager::gameOver() {
 }
 
 bool GameManager::runLevel() {
+    while (!errMessage.empty()) {
+        showMenu(errMessage);
+    }
+
     levelInit();
 
     mapWindow = win_ptr(newwin(mapHeight + 2, mapWidth + 2, 0, 0), destrWin);
-    infoWindow = win_ptr(newwin(mapHeight + 2, 40, 0, mapWidth + 2), destrWin);
+    infoWindow = win_ptr(newwin(mapHeight + 2, infoWindowWidth, 0, mapWidth + 2), destrWin);
 
     while (true) {
         Interactor::updateKeyState();
-        if (Interactor::isKeyPressed(27) || player->getHp() <= 0) {
+        if (player->getHp() <= 0 || Interactor::isKeyPressed(27)) {
             return false;
         }
 
@@ -306,8 +320,11 @@ void GameManager::drawMap(win_ptr& win) const {
 
 void GameManager::drawStats(win_ptr& win) const {
     mvwprintw(win.get(), 1, 1, "Level: %d", curLevel);
-    mvwprintw(win.get(), 5, 1, "Player HP: ");
+    mvwprintw(win.get(), 3, 1, "Player HP: ");
     for (int i = 0; i < player->getHp(); i++)
-        mvwprintw(win.get(), 5, 13 + i * 2, "o");
-    mvwprintw(win.get(), 7, 1, "Player shots: %d", dynamic_cast<Player*>(player)->getShots());
+        mvwprintw(win.get(), 3, 13 + i * 2, "o");
+    mvwprintw(win.get(), 4, 1, "Player shots: %d", dynamic_cast<Player*>(player)->getShots());
+    mvwprintw(win.get(), mapHeight - 4, 1, "WASD for moving");
+    mvwprintw(win.get(), mapHeight - 2, 1, "Press E to shoot");
+    mvwprintw(win.get(), mapHeight, 1, "Press ESC to exit");
 }

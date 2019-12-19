@@ -122,4 +122,10 @@ namespace util {
     char& GameInfo::operator[](const Point& pos) {
         return map[pos.y][pos.x];
     }
+    void GameInfo::reset() {
+        this->isWin = false;
+        this->map.clear();
+        this->items.clear();
+        this->projectiles.clear();
+    }
 }
